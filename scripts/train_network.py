@@ -5,7 +5,7 @@ from keras.datasets import mnist
 from keras.models import Sequential
 from keras.layers import Dropout
 from keras.layers import Conv2D, MaxPooling2D
-from keras import backend as K
+from keras import backend as Keras
 from keras.callbacks import ModelCheckpoint, CSVLogger
 from keras.layers import Dense, Flatten
 from keras.models import load_model
@@ -18,18 +18,18 @@ import datetime
 import glob
 
 
-def load_checkpoint_model(checkpoint_path, checkpoint_names):
+def load_model_from_checkpoints(path, name):
     # loads all the checkpoints paths from 'checkpoint_path'
-    list_of_checkpoint_files = glob.glob(os.path.join(checkpoint_path, '*'))
+    list_of_checkpoint_files = glob.glob(os.path.join(path, '*'))
     # get the latest checkpoint by the epoch no'
     checkpoint_epoch_number = max([int(file.split(".")[1]) for file in list_of_checkpoint_files])
-    checkpoint_epoch_path = os.path.join(checkpoint_path,
-                                         checkpoint_names.format(epoch=checkpoint_epoch_number))
+    checkpoint_epoch_path = os.path.join(path,
+                                         name.format(epoch=checkpoint_epoch_number))
 
     # load model from checkpoint
-    resume_model = load_model(checkpoint_epoch_path)
+    checkpoint_model = load_model(checkpoint_epoch_path)
 
-    return resume_model, checkpoint_epoch_number
+    return checkpoint_model, checkpoint_epoch_number
 
 
 def define_callbacks(volume_mount_dir, checkpoint_path, checkpoint_names, today_date):
@@ -68,6 +68,7 @@ def save_model(today_date):
     model.save_weights("/dl/models/model_mnist_{}.h5".format(today_date))
     print("Saved model to disk")
 
+
 def main():
     batch_size = 128
     num_classes = 10
@@ -84,9 +85,9 @@ def main():
     today_date = datetime.datetime.today().strftime('%Y-%m-%d')
 
     # the data, split between train and test sets
-    (x_train, y_train), (x_test, y_test) = mnist.load_data("/dl/datasets/mnist.npz")
+    (x_train, y_train), (x_test, y_test) = mnist.load_data(dataset_path + "/mnist.npz")
 
-    if K.image_data_format() == 'channels_first':
+    if Keras.image_data_format() == 'channels_first':
         x_train = x_train.reshape(x_train.shape[0], 1, img_rows, img_cols)
         x_test = x_test.reshape(x_test.shape[0], 1, img_rows, img_cols)
         input_shape = (1, img_rows, img_cols)
@@ -109,7 +110,7 @@ def main():
 
     # Load model
     if os.path.isdir(checkpoint_path) and any(glob.glob(os.path.join(checkpoint_path, '*'))):
-        model, epoch_number = load_checkpoint_model(checkpoint_path, checkpoint_names)
+        model, epoch_number = load_model_from_checkpoints(checkpoint_path, checkpoint_names)
     else:
         model = Sequential()
         model.add(Conv2D(32, kernel_size=(3, 3),
@@ -148,6 +149,7 @@ def main():
     shutil.copy2('/var/log/cloud-init-output.log', os.path.join(volume_mount_dir,
                                                                 'cloud-init-output-{}.log'.format(today_date)))
     save_model(today_date)
+
 
 if __name__ == "__main__":
     main()
