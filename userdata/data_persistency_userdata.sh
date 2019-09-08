@@ -29,6 +29,7 @@ sudo chown -R ubuntu: /dl/
 cd /dl
 mkdir -p datasets
 mkdir -p checkpoints
+mkdir -p models
 
 # Get training code from github
 mkdir -p ~/ec2-spot-labs
