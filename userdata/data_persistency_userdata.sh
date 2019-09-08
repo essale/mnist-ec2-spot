@@ -4,6 +4,8 @@ EC2_AVAIL_ZONE=`curl -s http://169.254.169.254/latest/meta-data/placement/availa
 EC2_REGION="`echo \"$EC2_AVAIL_ZONE\" | sed -e 's:\([0-9][0-9]*\)[a-z]*\$:\\1:'`"
 DEVICE_NAME="/dev/xvdb"
 DATA_STATE="unknown"
+
+# Validate that volumes are ready
 until [ "$DATA_STATE" == "attached" ]; do
         DATA_STATE=$(aws ec2 describe-volumes \
                 --region $EC2_REGION \
@@ -15,17 +17,28 @@ until [ "$DATA_STATE" == "attached" ]; do
         echo $DATA_STATE
         sleep 5
 done
-echo "volume is ready"
+# Volumes are ready
 
-echo "Start mounting volumes"
+# Maount volumes
 sudo mkdir -p /dl
 sudo mkfs -t xfs /dev/xvdb
 sudo mount /dev/xvdb /dl
 sudo chown -R ubuntu: /dl/
+
+# Prepare datasets and checkpoints folder if not exist
 cd /dl
 mkdir -p datasets
 mkdir -p checkpoints
 
-[ "$(ls -A /dltraining/datasets/)" ] && echo "Not Empty" || curl -o /dl/datasets/mnist.npz https://s3.amazonaws.com/img-datasets/mnist.npz
+# Get training code from github
+mkdir -p ~/ec2-spot-labs
+git clone https://github.com/essale/mnist-ec2-spot.git
+chown -R ubuntu: mnist-ec2-spot
+cd ~/ec2-spot-labs/scripts/
 
-sudo -H -u ubuntu bash -c "source /home/ubuntu/anaconda3/bin/activate tensorflow_p27; python ec2_spot_keras_training.py "
+# Download dataset if not already downloaded before
+[ "$(ls -A /dl/datasets/)" ] && echo "Not Empty" || curl -o /dl/datasets/mnist.npz https://s3.amazonaws.com/img-datasets/mnist.npz
+# Start anacunda ENV and run the training script
+sudo -H -u ubuntu bash -c "source /home/ubuntu/anaconda3/bin/activate tensorflow_p27; python train_network.py "
+
+
