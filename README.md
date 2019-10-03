@@ -30,6 +30,8 @@ Cons:
 Go to your spotinst account and start new `stateful` group:
 `Stateful` is spotinst product that keeps on persistence for data volumes and root volumes.
 In our case we will persist only the data volume, since we will not make any special changes for our OS.
+<img src = "">
+![image](./assets/stat1.png)
 
 * Start configuring your Elastigroup
 When configuring your `stateful elastigroup` you should pay attention to the following fields:
@@ -39,11 +41,12 @@ https://docs.aws.amazon.com/dlami/latest/devguide/gpu.html
     * Image: ami-0027dfad6168539c7 is an Amazon machine image with pre-installed deep learning frameworks. 
     * Key-pair: in order to connect to the instance via SSH key pair must be configured
 
+![image](./assets/stat2.png)
 * Choose your market: recommended Instance type: g2.2xlarge (Basic gpu instance type)
-
+![image](./assets/stat3.png)
 * As discussed before we should maintain data persistency in order to prevent unnecessary data loss on interruption.
 `Reattach policy` will guarantee that the same EBS volume will be reattached to the new spot instance when interruption occurs.
-
+![image](./assets/stat4.png)
 * Configure user data as follows: [userdata](https://github.com/essale/mnist-ec2-spot/blob/master/userdata/data_persistency_userdata.sh)
 
 * new instance will be created without volumes we need to create and attach the volumes only for the first time. Let spotinst automate the rest of the process for you.
@@ -62,10 +65,12 @@ aws ec2 attach-volume \
 ```
 
 Now you should see your instance connected with the volume (SSH to your machine and validate that the instance has been mounted the volume correctly)
+![image](./assets/stat6.png)
     
 `Deep learning example:`
 Our example represent mnist dataset using convolutional neural networks.
-The MNIST dataset is an image dataset of handwritten digits. It has 60,000 training images and 10,000 test images, each of which are grayscale 28 x 28 sized images. 
+The MNIST dataset is an image dataset of handwritten digits. It has 60,000 training images and 10,000 test images, each of which are grayscale 28 x 28 sized images.
+ ![image](./assets/stat7.png)
 
 Here we will mainly focus on the code infrastructure. As we saw before using deep learning on spot instances could not run out of the box. Some code formatting should be done before the code can run.
 The full training script can be found here: [training script](https://github.com/essale/mnist-ec2-spot/blob/master/scripts/train_network.py)
