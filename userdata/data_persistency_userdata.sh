@@ -32,15 +32,13 @@ mkdir -p checkpoints
 mkdir -p models
 
 # Get training code from github
-mkdir -p ~/ec2-spot-labs
-cd ~/ec2-spot-labs
+mkdir -p ec2-spot-labs
+cd /dl/ec2-spot-labs/
 git clone https://github.com/essale/mnist-ec2-spot.git
 chown -R ubuntu: mnist-ec2-spot
-cd ~/ec2-spot-labs/scripts/
+cd /dl/ec2-spot-labs/scripts/
 
 # Download dataset if not already downloaded before
 [ "$(ls -A /dl/datasets/)" ] && echo "Not Empty" || curl -o /dl/datasets/mnist.npz https://s3.amazonaws.com/img-datasets/mnist.npz
 # Start anacunda ENV and run the training script
-sudo -H -u ubuntu bash -c "source /home/ubuntu/anaconda3/bin/activate tensorflow_p27; python train_network.py "
-
-
+sudo -H -u ubuntu bash -c "source /home/ubuntu/anaconda3/bin/activate tensorflow_p27; python train_network.py"
