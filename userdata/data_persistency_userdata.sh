@@ -33,6 +33,7 @@ mkdir -p models
 
 # Get training code from github
 mkdir -p ~/ec2-spot-labs
+cd ~/ec2-spot-labs
 git clone https://github.com/essale/mnist-ec2-spot.git
 chown -R ubuntu: mnist-ec2-spot
 cd ~/ec2-spot-labs/scripts/
