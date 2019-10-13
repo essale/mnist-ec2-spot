@@ -41,4 +41,4 @@ cd /dl/ec2-spot-labs/scripts/
 # Download dataset if not already downloaded before
 [ "$(ls -A /dl/datasets/)" ] && echo "Not Empty" || curl -o /dl/datasets/mnist.npz https://s3.amazonaws.com/img-datasets/mnist.npz
 # Start anacunda ENV and run the training script
-sudo -H -u ubuntu bash -c "source /home/ubuntu/anaconda3/bin/activate tensorflow_p27; python train_network.py"
+sudo -H -u ubuntu bash -c "source /home/ubuntu/anaconda3/bin/activate tensorflow_p27; python /dl/ec2-spot-labs/mnist-ec2-spot/scripts/train_network.py"
